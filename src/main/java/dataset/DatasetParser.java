@@ -21,6 +21,9 @@ import dataset.Operation.OperationNode;
 import table_skeleton.TableRow;
 import xml_catalog_reader.XmlContents;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Parser for the .xml dataset and return it into the {@link Dataset} object
  * @author avonva
@@ -28,6 +31,8 @@ import xml_catalog_reader.XmlContents;
  */
 @Deprecated
 public class DatasetParser implements Closeable {
+	
+	private static final Logger LOGGER = LogManager.getLogger(DatasetParser.class);
 
 	private enum CurrentBlock {
 		HEADER,
@@ -273,6 +278,7 @@ public class DatasetParser implements Closeable {
 			try {
 				eventReader.close();
 			} catch (XMLStreamException e) {
+				LOGGER.error("Error in closing parser", e);
 				e.printStackTrace();
 			}
 		}

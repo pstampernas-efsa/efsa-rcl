@@ -69,13 +69,13 @@ public class Database {
 			con.close();
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 			LOGGER.fatal("Cannot start embedded database: embedded driver missing", e);
+			e.printStackTrace();
 
 		} catch (SQLException e1) {
 
 			LOGGER.debug("Creating new database...");
-
+	
 			DatabaseBuilder creator = new DatabaseBuilder();
 			creator.create(AppPaths.DB_FOLDER);
 		}
@@ -165,8 +165,8 @@ public class Database {
 			stmt.setString(2, key);
 			stmt.executeUpdate();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot update database properties, key=" + key + " value=" + value, e);
+			e.printStackTrace();
 		}
 	}
 
@@ -191,8 +191,8 @@ public class Database {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get database property key=" + key, e);
+			e.printStackTrace();
 		}
 
 		return version;
@@ -224,8 +224,8 @@ public class Database {
 			cs.executeBatch();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot compress database", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -255,6 +255,8 @@ public class Database {
 		try {
 			DriverManager.getConnection(CLOSE_DB_URL);
 		} catch (SQLException e) {
+			LOGGER.error("Error in shutting down the database ", e);
+			e.printStackTrace();
 		}
 	}
 

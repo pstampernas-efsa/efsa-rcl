@@ -295,5 +295,7 @@ public class XmlParser {
 		
 		if (input != null)
 			input.close();
+		
+		LOGGER.debug("Closing parser");
 	}
 }

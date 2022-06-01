@@ -22,6 +22,9 @@ import global_utils.Warnings;
 import table_skeleton.TableColumn;
 import table_skeleton.TableRow;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Class that allow to export the summarised information table to xlsx.
  *
@@ -29,6 +32,8 @@ import table_skeleton.TableRow;
  */
 
 public class SummInfoToExcel {
+	
+	private static final Logger LOGGER = LogManager.getLogger(SummInfoToExcel.class);
 
 	public XSSFWorkbook createWorkbookFromTable(Collection<TableColumn> headers, Collection<TableRow> records) {
 
@@ -110,6 +115,7 @@ public class SummInfoToExcel {
 			fos.close();
 			Warnings.warnUser(shell, "Success", "Workbook saved successfully.", SWT.ICON_INFORMATION);
 		} catch (IOException ioe) {
+			LOGGER.error("Error in saving workbook: " , ioe);
 			ioe.printStackTrace();
 			String msg = ioe.getMessage();
 			Warnings.warnUser(shell, "Error", "Save Workbook Failed!\n"+msg);

@@ -135,11 +135,17 @@ public class TableRow implements Checkable {
 				id = Integer.valueOf(value.getCode());
 
 		} catch (NumberFormatException e) {
+			LOGGER.error("Cannot get database id:", e);
+			e.printStackTrace();
 		}
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
 >>>>>>> 4f02338 (removed log about database id)
+=======
+		LOGGER.info("Database id: " + id);
+>>>>>>> 365d0ee (Adding logging to efsa-rcl repo)
 		return id;
 	}
 
@@ -233,6 +239,7 @@ public class TableRow implements Checkable {
 			numValue = Integer.valueOf(value);
 		} catch (NumberFormatException e) {
 			LOGGER.error("Cannot get number for value:" + value, e);
+			e.printStackTrace();
 		}
 
 		return numValue;
@@ -340,8 +347,8 @@ public class TableRow implements Checkable {
 					}
 					throw new IOException(error);
 				} catch (IOException e) {
-					e.printStackTrace();
 					LOGGER.error("Cannot put key=" + key + ", value=" + value + " in row", e);
+					e.printStackTrace();
 				}
 
 				row = new TableCell();
@@ -383,8 +390,8 @@ public class TableRow implements Checkable {
 			Formula label = solver.solve(col, XlsxHeader.DEFAULT_VALUE.getHeaderName());
 			sel.setLabel(label.getSolvedFormula());
 		} catch (FormulaException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot solve formula for column=" + colId, e);
+			e.printStackTrace();
 		}
 
 		try {
@@ -396,8 +403,8 @@ public class TableRow implements Checkable {
 				sel = getTableColumnValue(code.getSolvedFormula(), col.getPicklistKey());
 
 		} catch (FormulaException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot solve formula for column=" + colId, e);
+			e.printStackTrace();
 		}
 
 		this.put(col.getId(), sel);
@@ -477,16 +484,16 @@ public class TableRow implements Checkable {
 		try {
 			solver.solveAll(XlsxHeader.CODE_FORMULA.getHeaderName());
 		} catch (FormulaException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot solve row formulas", e);
+			e.printStackTrace();
 		}
 
 		// TODO
 		try {
 			solver.solveAll(XlsxHeader.LABEL_FORMULA.getHeaderName());
 		} catch (FormulaException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot solve row formulas", e);
+			e.printStackTrace();
 		}
 	}
 

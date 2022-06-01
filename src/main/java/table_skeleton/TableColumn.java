@@ -119,6 +119,8 @@ public class TableColumn implements Comparable<TableColumn> {
 			h = XlsxHeader.fromString(header);  // get enum from string
 		}
 		catch(IllegalArgumentException e) {
+			LOGGER.error("Error in accessing column by header ",e);
+			e.printStackTrace();
 			return null;
 		}
 		
@@ -290,8 +292,8 @@ public class TableColumn implements Comparable<TableColumn> {
 			solvedFormula = solveFormula(row, headerName);
 			return BooleanValue.isTrue(solvedFormula);
 		} catch (FormulaException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot solve formula", e);
+			e.printStackTrace();
 		}
 		
 		return false;
@@ -327,8 +329,8 @@ public class TableColumn implements Comparable<TableColumn> {
 		try {
 			return solveFormula(row, XlsxHeader.PICKLIST_FILTER.getHeaderName());
 		} catch (FormulaException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot solve formula for picklist filter", e);
+			e.printStackTrace();
 		}
 		
 		return null;

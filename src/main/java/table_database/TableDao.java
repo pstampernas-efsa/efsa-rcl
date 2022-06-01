@@ -193,8 +193,8 @@ public class TableDao implements ITableDao {
 				}
 
 			} catch (NumberFormatException | IOException e) {
-				e.printStackTrace();
 				LOGGER.error("Wrong integer field " + col.getId() + " with value " + value, e);
+				e.printStackTrace();
 			}
 
 			// increase current index
@@ -235,8 +235,8 @@ public class TableDao implements ITableDao {
 			}
 
 		} catch (SQLException e) {
+			LOGGER.error("Cannot add row to the table", e);
 			e.printStackTrace();
-			LOGGER.error("Cannot add row", e);
 		}
 
 		if (id != -1) {
@@ -269,9 +269,9 @@ public class TableDao implements ITableDao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-
-			e.printStackTrace();
 			LOGGER.error("Cannot update row", e);
+			e.printStackTrace();
+		
 			ok = false;
 		}
 
@@ -301,8 +301,8 @@ public class TableDao implements ITableDao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot delete rows", e);
+			e.printStackTrace();
 			ok = false;
 		}
 
@@ -338,8 +338,8 @@ public class TableDao implements ITableDao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot delete rows by parent id=" + parentId, e);
+			e.printStackTrace();
 			ok = false;
 		}
 
@@ -390,6 +390,7 @@ public class TableDao implements ITableDao {
 				try {
 					value = rs.getString(column.getId());
 				} catch (SQLException e) {
+					LOGGER.error("Error in accessing column", e);
 				}
 
 				// if no value go to the next field
@@ -493,13 +494,13 @@ public class TableDao implements ITableDao {
 						rows.add(row);
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot get rows by parentId=" + parentId, e);
+				e.printStackTrace();
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get rows by parentId=" + parentId, e);
+			e.printStackTrace();
 		}
 
 		return rows;
@@ -527,13 +528,13 @@ public class TableDao implements ITableDao {
 						rows.add(row);
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot get all rows", e);
+				e.printStackTrace();
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get all rows", e);
+			e.printStackTrace();
 		}
 
 		return rows;
@@ -558,8 +559,8 @@ public class TableDao implements ITableDao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot delete row with database id=" + rowId, e);
+			e.printStackTrace();
 			ok = false;
 		}
 
@@ -595,8 +596,8 @@ public class TableDao implements ITableDao {
 			stmt.executeBatch();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot delete rows", e);
+			e.printStackTrace();
 			ok = false;
 		}
 
@@ -695,8 +696,8 @@ public class TableDao implements ITableDao {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot add list of records", e);
+			e.printStackTrace();
 			ok = false;
 		}
 
@@ -722,8 +723,8 @@ public class TableDao implements ITableDao {
 			stmt.executeUpdate();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot delete rows", e);
+			e.printStackTrace();
 			ok = false;
 		}
 
@@ -757,13 +758,13 @@ public class TableDao implements ITableDao {
 					row = getByResultSet(schema, rs, true);
 				}
 			} catch (SQLException e) {
+				LOGGER.error("Error in getting all the rows by id " + id, e);
 				e.printStackTrace();
-				LOGGER.error("Cannot get rows", e);
 			}
 
 		} catch (SQLException e) {
+			LOGGER.error("Error in getting all the rows by id " + id, e);
 			e.printStackTrace();
-			LOGGER.error("Cannot get rows", e);
 		}
 
 		return row;
@@ -792,13 +793,13 @@ public class TableDao implements ITableDao {
 					rows.add(row);
 				}
 			} catch (SQLException e) {
+				LOGGER.error("Error in getting all the rows that matches the fieldName with value " + value, e);
 				e.printStackTrace();
-				LOGGER.error("Cannot get rows", e);
 			}
 
 		} catch (SQLException e) {
+			LOGGER.error("Error in getting all the rows that matches the fieldName with value " + value, e);
 			e.printStackTrace();
-			LOGGER.error("Cannot get rows", e);
 		}
 
 		return rows;

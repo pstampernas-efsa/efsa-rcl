@@ -10,6 +10,9 @@ import app_config.AppPaths;
 import app_config.BooleanValue;
 import xlsx_reader.XlsxReader;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Parser for the special sheet "Relations" which
  * identifies all the table relationships
@@ -17,6 +20,8 @@ import xlsx_reader.XlsxReader;
  *
  */
 public class RelationParser extends XlsxReader {
+	
+	private static final Logger LOGGER = LogManager.getLogger(RelationParser.class);
 	
 	private Collection<Relation> relations;
 	private String parentTable;
@@ -51,6 +56,7 @@ public class RelationParser extends XlsxReader {
 			h = RelationHeader.fromString(header);  // get enum from string
 		}
 		catch(IllegalArgumentException e) {
+			LOGGER.error("Error in processing cell ", e);
 			return;
 		}
 

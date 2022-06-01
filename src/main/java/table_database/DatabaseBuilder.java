@@ -51,8 +51,8 @@ public class DatabaseBuilder implements IDatabaseBuilder {
 			addDbInfo();
 
 		} catch (IOException | SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot create database in folder=" + path, e);
+			e.printStackTrace();
 			return;
 		}
 	}
@@ -72,6 +72,7 @@ public class DatabaseBuilder implements IDatabaseBuilder {
 		try (Connection con = DriverManager.getConnection(DB_URL); SQLExecutor executor = new SQLExecutor(con);) {
 			executor.exec(query);
 		}
+		LOGGER.debug("Creating table " + table + " completed");
 	}
 
 	/**
@@ -91,6 +92,7 @@ public class DatabaseBuilder implements IDatabaseBuilder {
 		try (Connection con = DriverManager.getConnection(DB_URL); SQLExecutor executor = new SQLExecutor(con);) {
 			executor.exec(query);
 		}
+		LOGGER.debug("Adding column to table " + column + " completed");
 	}
 
 	/**
@@ -110,6 +112,7 @@ public class DatabaseBuilder implements IDatabaseBuilder {
 		try (Connection con = DriverManager.getConnection(DB_URL); SQLExecutor executor = new SQLExecutor(con);) {
 			executor.exec(query);
 		}
+		LOGGER.debug("Adding foreiqn key " + foreignKey + " completed");
 	}
 
 	/**
@@ -129,6 +132,7 @@ public class DatabaseBuilder implements IDatabaseBuilder {
 		try (Connection con = DriverManager.getConnection(DB_URL); SQLExecutor executor = new SQLExecutor(con);) {
 			executor.exec(query);
 		}
+		LOGGER.debug("Removing foreiqn key " + foreignKey + " completed");
 	}
 
 	/**
@@ -158,7 +162,7 @@ public class DatabaseBuilder implements IDatabaseBuilder {
 				}
 			}
 		}
-
+		LOGGER.info("Foreiqn key: " + key);
 		return key;
 	}
 

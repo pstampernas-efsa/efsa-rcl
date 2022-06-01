@@ -90,8 +90,8 @@ public class TableSchemaList extends ArrayList<TableSchema> {
 		try {
 			schemas = getAll(tablesSchemaFilename);
 		} catch (IOException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get tables schemas from filename=" + tablesSchemaFilename + ". Returning null", e);
+			e.printStackTrace();
 			return null;
 		}
 

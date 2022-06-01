@@ -152,8 +152,8 @@ public class RowParser implements Closeable {
 			try {
 				eventReader.close();
 			} catch (XMLStreamException e) {
+				LOGGER.error("Cannot close parser", e);
 				e.printStackTrace();
-				LOGGER.error("Cannot close the RowParser", e);
 			}
 		}
 

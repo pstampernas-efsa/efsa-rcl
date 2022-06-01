@@ -219,8 +219,8 @@ public class DatasetComparisonParser implements AutoCloseable {
 			try {
 				eventReader.close();
 			} catch (XMLStreamException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot close the DatasetComparisonParser", e);
+				e.printStackTrace();
 			}
 		}
 
