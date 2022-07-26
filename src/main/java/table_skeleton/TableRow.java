@@ -136,7 +136,10 @@ public class TableRow implements Checkable {
 
 		} catch (NumberFormatException e) {
 		}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4f02338 (removed log about database id)
 		return id;
 	}
 
