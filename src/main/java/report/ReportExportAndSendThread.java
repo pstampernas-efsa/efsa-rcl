@@ -47,9 +47,8 @@ public class ReportExportAndSendThread extends Thread {
 		} catch (DetailedSOAPException | IOException | ParserConfigurationException | SAXException
 				| SendMessageException | ReportException | AmendException e) {
 
-			e.printStackTrace();
-
 			LOGGER.error("Cannot send report=" + report.getSenderId(), e);
+			e.printStackTrace();
 
 			if (progressListener != null)
 				this.progressListener.progressStopped(e);
