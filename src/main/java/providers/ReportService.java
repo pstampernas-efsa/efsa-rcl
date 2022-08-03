@@ -315,6 +315,7 @@ public class ReportService implements IReportService {
 		File file;
 		try {
 			file = this.export(report, messageConfig, progressListener);
+			
 		} catch (AmendException e1) {
 
 			// upload failed if errors in the amendments
@@ -764,8 +765,8 @@ public class ReportService implements IReportService {
 		try {
 			dcfDataset = this.getDataset(report);
 		} catch (DetailedSOAPException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get the dataset of the report=" + report.getSenderId(), e);
+			e.printStackTrace();
 			return Warnings.createSOAPWarning(e);
 		}
 
