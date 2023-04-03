@@ -71,6 +71,7 @@ public class PropertiesReader {
 		}
 		catch (IOException e) {
 			LOGGER.error("The properties file was not found. Please check!", e);
+			e.printStackTrace();
 		}
 		
 		return properties;
@@ -190,6 +191,7 @@ public class PropertiesReader {
 			    }
 
 			} catch (IOException e) {
+				LOGGER.error("Error in processing file", e);
 				e.printStackTrace();
 			}
 		}
@@ -221,8 +223,8 @@ public class PropertiesReader {
 		try {
 			mail.openEmailClient();
 		} catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot open e-mail client", e);
+			e.printStackTrace();
 			return false;
 		}
 		
@@ -312,7 +314,7 @@ public class PropertiesReader {
 			// data collection
 			dcCode = resolveDCPattern(dcPattern, reportYear);
 		}
-
+		LOGGER.debug("The data collection code for which the application was created: " + dcCode);
 		return dcCode;
 	}
 	
@@ -374,8 +376,8 @@ public class PropertiesReader {
 			return Integer.valueOf(year);
 		}
 		catch(NumberFormatException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get the data collection starting year. Expected number, found=" + year, e);
+			e.printStackTrace();
 			return -1;
 		}
 	}

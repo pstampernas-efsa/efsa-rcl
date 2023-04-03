@@ -138,6 +138,8 @@ public class TableColumnBuilder {
 			colType = ColumnType.fromString(type);
 		} catch (IllegalArgumentException e) {
 			colType = ColumnType.STRING;
+			LOGGER.error("Error in setting column type: ", e);
+			e.printStackTrace();
 		}
 
 		setType(colType);

@@ -132,8 +132,8 @@ public abstract class ReportActions {
 		try {
 			dataset = reportService.getDataset(report);
 		} catch (DetailedSOAPException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot send report=" + report.getSenderId(), e);
+			e.printStackTrace();
 			shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
 			manageException(e, ReportAction.SEND);
 			return;
@@ -150,9 +150,8 @@ public abstract class ReportActions {
 				}
 
 			} catch (NotOverwritableDcfDatasetException e) {
-				e.printStackTrace();
-
 				LOGGER.error("Cannot send report=" + report.getSenderId(), e);
+				e.printStackTrace();
 				manageException(e, ReportAction.SEND);
 				return;
 			}
