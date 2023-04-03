@@ -9,12 +9,17 @@ import org.apache.poi.ss.usermodel.Row;
 import app_config.AppPaths;
 import xlsx_reader.XlsxReader;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Read all the help files from the .xlsx
  * @author avonva
  *
  */
 public class TableListParser extends XlsxReader {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TableListParser.class);
 
 	private String tableName;
 	private String htmlFilename;
@@ -48,6 +53,7 @@ public class TableListParser extends XlsxReader {
 			h = TablesHeader.fromString(header);  // get enum from string
 		}
 		catch(IllegalArgumentException e) {
+			LOGGER.error("Error in processing cell ", e);
 			return;
 		}
 

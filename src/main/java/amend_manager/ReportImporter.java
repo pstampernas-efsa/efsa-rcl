@@ -105,7 +105,7 @@ public abstract class ReportImporter {
 
 	private Dataset download(Dataset dataset)
 			throws XMLStreamException, IOException, DetailedSOAPException, NoAttachmentException {
-
+		LOGGER.debug("Downloading..");
 		String datasetId = dataset.getId();
 
 		File file = reportService.download(datasetId);
@@ -400,7 +400,9 @@ public abstract class ReportImporter {
 		if (lastAccepted == null)
 			return 0;
 
-		return Integer.valueOf(lastAccepted.getVersion());
+		int lastAcceptedVersion = Integer.valueOf(lastAccepted.getVersion());
+		LOGGER.debug("Last Accepted Version", lastAcceptedVersion);
+		return lastAcceptedVersion;
 	}
 
 	/**
@@ -413,8 +415,10 @@ public abstract class ReportImporter {
 
 		if (lastExisting == null)
 			return 0;
-
-		return Integer.valueOf(lastExisting.getVersion());
+		
+		int lastExistingVersion = Integer.valueOf(lastExisting.getVersion());
+		LOGGER.debug("Last Existing Version", lastExistingVersion);
+		return lastExistingVersion;
 	}
 
 	/**

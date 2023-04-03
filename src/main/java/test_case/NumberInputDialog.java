@@ -21,7 +21,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class NumberInputDialog extends Dialog {
+	
+	private static final Logger LOGGER = LogManager.getLogger(NumberInputDialog.class);
 	
 	private Integer value;
 	private String defVal;
@@ -57,6 +62,7 @@ public class NumberInputDialog extends Dialog {
 			value = new Integer(text);
 			buttonOK.setEnabled(true);
 		} catch (Exception e) {
+			LOGGER.error("Error in changing value: ", e);
 			buttonOK.setEnabled(false);
 		}
 		

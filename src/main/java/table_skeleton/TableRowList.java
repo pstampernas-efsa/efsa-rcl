@@ -6,7 +6,13 @@ import java.util.Collection;
 import table_database.TableDao;
 import xlsx_reader.TableSchema;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class TableRowList extends ArrayList<TableRow> {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TableRowList.class);
+	
 	private static final long serialVersionUID = -3747461146664774866L;
 	private TableSchema schema;
 	
@@ -64,5 +70,6 @@ public class TableRowList extends ArrayList<TableRow> {
 		TableDao dao = new TableDao();
 		// remove all the summ rows
 		dao.delete(this);
+		LOGGER.debug("Deleting the entire list from the db");
 	}
 }

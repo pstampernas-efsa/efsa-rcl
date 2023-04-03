@@ -315,8 +315,9 @@ public class ReportService implements IReportService {
 		File file;
 		try {
 			file = this.export(report, messageConfig, progressListener);
+			
 		} catch (AmendException e1) {
-
+			LOGGER.error("Error during export", e1);
 			// upload failed if errors in the amendments
 			report.setStatus(RCLDatasetStatus.UPLOAD_FAILED);
 			this.daoService.update(report);
@@ -340,7 +341,7 @@ public class ReportService implements IReportService {
 			// delete file also if exception occurs
 			file.delete();
 		} catch (DetailedSOAPException e) {
-
+			LOGGER.error("Error during delete of file ", e);
 			// delete file also if exception occurs
 			file.delete();
 
@@ -610,7 +611,7 @@ public class ReportService implements IReportService {
 
 		String senderId = TableVersion.mergeNameAndVersion(report.getSenderId(), report.getVersion());
 
-		LOGGER.info("Searching report with sender dataset id=" + senderId);
+		LOGGER.debug("Searching report with sender dataset id=" + senderId);
 
 		// if no dataset is present => we do an insert
 		if (dcfDataset == null || !dcfDataset.getSenderId().equals(senderId)) {
@@ -657,8 +658,8 @@ public class ReportService implements IReportService {
 		try {
 			ack = this.getAckOf(report.getMessageId());
 		} catch (DetailedSOAPException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get the ack for the report=" + report.getSenderId(), e);
+			e.printStackTrace();
 			return Warnings.createSOAPWarning(e);
 		}
 
@@ -764,8 +765,8 @@ public class ReportService implements IReportService {
 		try {
 			dcfDataset = this.getDataset(report);
 		} catch (DetailedSOAPException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get the dataset of the report=" + report.getSenderId(), e);
+			e.printStackTrace();
 			return Warnings.createSOAPWarning(e);
 		}
 
@@ -880,6 +881,7 @@ public class ReportService implements IReportService {
 			fileLog = new GetFile().getFile(Config.getEnvironment(), User.getInstance(),
 					ack.getLog().getDetailedAckResId());
 		} catch (SOAPException | IOException e1) {
+			LOGGER.error("Error in accessing file: ", e1);
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -927,12 +929,12 @@ public class ReportService implements IReportService {
 			try {
 				return downloadAckFile(localMessageId);
 			} catch (DetailedSOAPException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot get ack for messageId=" + localMessageId, e);
+				e.printStackTrace();
 				return new DisplayAckResult(Warnings.createSOAPWarning(e));
 			} catch (TransformerException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot get ack for messageId=" + localMessageId, e);
+				e.printStackTrace();
 			}
 		}
 
@@ -943,8 +945,8 @@ public class ReportService implements IReportService {
 		try {
 			dataset = this.getDataset(report);
 		} catch (DetailedSOAPException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get dataset in GetDatasetList for datasetId=" + datasetId, e);
+			e.printStackTrace();
 			return new DisplayAckResult(Warnings.createSOAPWarning(e));
 		}
 
@@ -1004,12 +1006,12 @@ public class ReportService implements IReportService {
 		try {
 			result = downloadAckFile(targetMessageId);
 		} catch (DetailedSOAPException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get ack for messageId=" + targetMessageId, e);
+			e.printStackTrace();
 			return new DisplayAckResult(Warnings.createSOAPWarning(e));
 		} catch (TransformerException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get ack for messageId=" + targetMessageId, e);
+			e.printStackTrace();
 		}
 
 		// add warning if present
@@ -1056,6 +1058,7 @@ public class ReportService implements IReportService {
 			trans.transform(xmlSource, streamRes);
 		} catch (IOException | TransformerException e) {
 			// TODO Auto-generated catch block
+			LOGGER.error("Error during transform: ", e);
 			e.printStackTrace();
 		}
 

@@ -118,7 +118,7 @@ public class DatasetMetaDataParser implements Closeable {
 			if (dataset.getHeader() != null && dataset.getOperation() != null)
 				break;
 		}
-		
+		LOGGER.debug("Parsing the .xml document");
 		return this.dataset;
 	}
 	
@@ -262,8 +262,8 @@ public class DatasetMetaDataParser implements Closeable {
 			try {
 				eventReader.close();
 			} catch (XMLStreamException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot close the DatasetMetaDataParser", e);
+				e.printStackTrace();
 			}
 		}
 
@@ -271,5 +271,7 @@ public class DatasetMetaDataParser implements Closeable {
 		
 		if (input != null)
 			input.close();
+		
+		LOGGER.debug("Closing parser");
 	}
 }

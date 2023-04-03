@@ -2,7 +2,12 @@ package formula;
 
 import java.util.Collection;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class FoodexElement {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FoodexElement.class);
 
 	private Collection<AttributeElement> facetList;
 	private String baseTerm;
@@ -35,7 +40,7 @@ public class FoodexElement {
 			
 			count++;
 		}
-		
+		LOGGER.debug("Facet : " + sb.toString());
 		return sb.toString();
 	}
 	

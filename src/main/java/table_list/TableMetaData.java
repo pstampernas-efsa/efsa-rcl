@@ -71,8 +71,8 @@ public class TableMetaData {
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get table with name=" + tableName, e);
+			e.printStackTrace();
 		}
 		
 		return table;

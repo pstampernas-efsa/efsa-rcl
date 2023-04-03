@@ -2,6 +2,8 @@ package report;
 
 import java.util.Collection;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -32,6 +34,8 @@ import user.User;
  *
  */
 public abstract class ReportDownloaderDialog {
+	
+	static final Logger LOGGER = LogManager.getLogger(ReportDownloaderDialog.class);
 
 	private Shell shell;
 	private DatasetList allVersions;

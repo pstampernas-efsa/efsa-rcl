@@ -62,8 +62,8 @@ public class TableVersion {
 			}
 		}
 		catch (NumberFormatException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot decrement version. Expected number, found=" + versionCode, e);
+			e.printStackTrace();
 		}
 		
 		return newVersionCode;
@@ -101,8 +101,8 @@ public class TableVersion {
 			}
 		}
 		catch (NumberFormatException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot increment version. Expected number, found=" + versionCode, e);
+			e.printStackTrace();
 		}
 		
 		return newVersionCode;

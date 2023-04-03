@@ -36,8 +36,8 @@ public class TableSchema extends ArrayList<TableColumn> {
 		try {
 			this.relations = getParentTables();
 		} catch (IOException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get parent tables for sheetname=" + sheetName, e);
+			e.printStackTrace();
 		}
 	}
 	

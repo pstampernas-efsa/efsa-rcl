@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * This class is used to decompose a compound field into its
@@ -24,6 +27,8 @@ import java.util.StringTokenizer;
  *
  */
 public class FormulaDecomposer {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FormulaDecomposer.class);
 	
 	public enum AttributeIdentifier {
 		NAME_VALUE,
@@ -154,27 +159,25 @@ public class FormulaDecomposer {
 
 	
 	public static void main(String[] args) throws ParseException {
-		
-		
-		
+			
 		String value = "A04MQ#F01.A057B$F02.A06AM$F21.A07RV$F31.A16NK";
 		
-		System.out.println("Foodex code with facet headers: " + value);
+		LOGGER.info("Foodex code with facet headers: " + value);
 		
 		FormulaDecomposer d = new FormulaDecomposer();
 		FoodexElement a = d.splitFoodex(value, AttributeIdentifier.FACET_HEADER);
-		System.out.println("BASETERM: " + a.getBaseTerm());
-		System.out.println("FACETS: " + a.getFacetList());
+		LOGGER.info("BASETERM: " + a.getBaseTerm());
+		LOGGER.info("FACETS: " + a.getFacetList());
 		
 		value = "a=fjaijd$b=iajhiaj";
-		System.out.println("Simple attribute name/value: " + value);
-		System.out.println("ATTRIBUTES: " + d.split(value));
+		LOGGER.info("Simple attribute name/value: " + value);
+		LOGGER.info("ATTRIBUTES: " + d.split(value));
 
 		value = "A04MQ#allele1=A057B$allele2=19KMO8";
-		System.out.println("Foodex code with attributes: " + value);
+		LOGGER.info("Foodex code with attributes: " + value);
 		
 		FoodexElement code = d.splitFoodex(value, AttributeIdentifier.NAME_VALUE);
-		System.out.println("BASETERM: " + code.getBaseTerm());
-		System.out.println("FACETS: " + code.getFacetList());
+		LOGGER.info("BASETERM: " + code.getBaseTerm());
+		LOGGER.info("FACETS: " + code.getFacetList());
 	}
 }

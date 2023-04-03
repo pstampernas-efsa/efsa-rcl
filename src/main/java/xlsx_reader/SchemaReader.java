@@ -7,6 +7,9 @@ import org.apache.poi.ss.usermodel.Row;
 import table_skeleton.TableColumnBuilder;
 import xlsx_reader.TableHeaders.XlsxHeader;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Read the configuration of tables from the .xlsx. Output all the columns in
  * the {@code schema} variable, accessible by {@link #getSchema()}.
@@ -16,6 +19,8 @@ import xlsx_reader.TableHeaders.XlsxHeader;
  *
  */
 public class SchemaReader extends XlsxReader {
+	
+	private static final Logger LOGGER = LogManager.getLogger(SchemaReader.class);
 
 	public TableSchema schema;
 	private TableColumnBuilder builder;
@@ -39,6 +44,8 @@ public class SchemaReader extends XlsxReader {
 		try {
 			h = XlsxHeader.fromString(header); // get enum from string
 		} catch (IllegalArgumentException e) {
+			LOGGER.error("Error in processing xls cell: " + e);
+			e.printStackTrace();
 			return;
 		}
 
@@ -99,6 +106,8 @@ public class SchemaReader extends XlsxReader {
 			try {
 				order = Integer.valueOf(value);
 			} catch (NumberFormatException e) {
+				LOGGER.error("Error in integer conversion: " + e);
+				e.printStackTrace();
 				order = -1;
 			}
 			builder.setOrder(order);

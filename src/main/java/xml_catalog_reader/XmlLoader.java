@@ -66,8 +66,8 @@ public class XmlLoader {
 				
 				parser.close();
 			} catch (XMLStreamException | IOException e) {
-				e.printStackTrace();
 				LOGGER.error("Cannot refresh the XmlLoader contents", e);
+				e.printStackTrace();
 			}
 		}
 	}

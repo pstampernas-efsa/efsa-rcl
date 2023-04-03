@@ -24,7 +24,12 @@ import table_skeleton.TableRow;
 import xml_catalog_reader.Selection;
 import xml_catalog_reader.SelectionList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class TableEditor extends EditingSupport {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TableEditor.class);
 	
 	private Collection<EditorListener> listeners;
 	private TableColumn column;
@@ -281,6 +286,8 @@ public class TableEditor extends EditingSupport {
 			return true;
 		}
 		catch (NumberFormatException e) {
+			LOGGER.error("Error in checking if it is a numeric input: ", e);
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -297,6 +304,8 @@ public class TableEditor extends EditingSupport {
 			return value >= 0;
 		}
 		catch (NumberFormatException e) {
+			LOGGER.error("Error in checking if it is a numeric input: ", e);
+			e.printStackTrace();
 			return false;
 		}
 	}

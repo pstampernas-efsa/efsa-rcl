@@ -23,8 +23,7 @@ public class DatasetComparisonDao {
 	 * @param comp
 	 */
 	public void add(DatasetComparison comp) {
-		
-		System.out.println(comp.getRowId()+", "+comp.getVersion()+", "+comp.getXmlRecord()+", "+comp.getAmType()+", "+comp.getIsNullified());
+		LOGGER.info(comp.getRowId()+", "+comp.getVersion()+", "+comp.getXmlRecord()+", "+comp.getAmType()+", "+comp.getIsNullified());
 		
 		String query = "insert into APP.DATASET_COMPARISON (ROW_ID, VERSION, XML_RECORD, AM_TYPE, IS_NULLIFIED) values (?,?,?,?,?)";
 
@@ -49,9 +48,8 @@ public class DatasetComparisonDao {
 			stmt.executeUpdate();
 		}
 		catch (SQLException e) {
-			
-			e.printStackTrace();
 			LOGGER.error("Cannot add a new dataset comparison=" + comp, e);
+			e.printStackTrace();
 		}
 	}
 	
@@ -82,8 +80,8 @@ public class DatasetComparisonDao {
 			}
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot get all the dataset comparisons", e);
+			e.printStackTrace();
 		}
 		
 		return comparisons;
@@ -102,8 +100,8 @@ public class DatasetComparisonDao {
 			stmt.executeUpdate();
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot delete all the dataset comparisons", e);
+			e.printStackTrace();
 		}
 	}
 	
@@ -119,8 +117,8 @@ public class DatasetComparisonDao {
 			stmt.executeUpdate();
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot execute query=" + query, e);
+			e.printStackTrace();
 		}
 	}
 }

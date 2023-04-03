@@ -4,12 +4,17 @@ import table_skeleton.TableCell;
 import table_skeleton.TableColumn;
 import table_skeleton.TableRow;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Class to manage columns formulas (%columnId.code/label)
  * @author avonva
  *
  */
 public class ColumnFormula implements IFormula {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ColumnFormula.class);
 
 	private String formula;
 	private String columnId;
@@ -78,7 +83,8 @@ public class ColumnFormula implements IFormula {
 			try {
 				solvedFormula = emptyValue ? colSchema.getCodeFormula() : colValue.getCode();
 			}catch (Exception e) {
-				System.err.println(e);
+				LOGGER.error("Error in getting solved formula ", e);
+				e.printStackTrace();
 			}
 			break;
 		case "label":
