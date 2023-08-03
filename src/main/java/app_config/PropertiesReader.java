@@ -9,18 +9,21 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
+import config.Config;
+import config.Environment;
+import data_collection.*;
+import dataset.*;
+import formula.FormulaException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import dataset.IDataset;
 import email.Email;
 import report.EFSAReport;
 import report.Report;
+import soap.*;
+import soap_interface.IGetDatasetsList;
 import table_database.Database;
 import user.User;
 
@@ -56,25 +59,16 @@ public class PropertiesReader {
 	 * @return
 	 */
 	public static Properties getProperties(String filename) {
-		
-		Properties properties = null;
-
-		try {
-			
-			properties = new Properties();
-
-			// fileStream from default properties xml file
-			FileInputStream in = new FileInputStream(filename);
+		try (FileInputStream in = new FileInputStream(filename)) {
+			Properties properties = new Properties();
 			properties.loadFromXML(in);
-
-			in.close();
+			return properties;
 		}
 		catch (IOException e) {
 			LOGGER.error("The properties file was not found. Please check!", e);
 			e.printStackTrace();
 		}
-		
-		return properties;
+		return null;
 	}
 	
 	/**
@@ -113,28 +107,21 @@ public class PropertiesReader {
 	}
 	
 	private static String solveKeywords(String input, User user, IDataset... reports) {
-		
 		if (input == null)
 			return null;
 		
-		String reportDiagnostic = "";
-		
 		StringBuilder sb = new StringBuilder();
-		
 		if (reports.length > 0) {
 			sb.append("Involved reports/datasets:\\n");
 		}
 		
 		for (IDataset report : reports) {
-			sb.append("\\nSender dataset id=")
-				.append(report.getSenderId());
-				
+			sb.append("\\nSender dataset id=").append(report.getSenderId());
 			
 			if (report instanceof EFSAReport)
 				sb.append("\\nMessage id=").append(((EFSAReport)report).getMessageId());
 			
-				sb
-				.append("\\nLast message id=")
+			sb.append("\\nLast message id=")
 				.append(report.getLastMessageId())
 				
 				.append("\\nLast modifying message id=")
@@ -149,8 +136,7 @@ public class PropertiesReader {
 				.append("\\nStatus step=").append(report.getRCLStatus().getStep());
 		}
 		
-		reportDiagnostic = sb.toString();
-		
+		String reportDiagnostic = sb.toString();
 		String solved = input
 				.replace("%appVersion", getAppVersion())
 				.replace("%appName", getAppName())
@@ -162,34 +148,24 @@ public class PropertiesReader {
 				.replace("%userdata", user.getData().toString());
 		
 		String dbVersion = new Database().getVersion();
-		if (dbVersion != null)
-			solved = solved.replace("%dbVersion", dbVersion);
-		else
-			solved = solved.replace("%dbVersion", "NULL");
+		solved = dbVersion != null
+				? solved.replace("%dbVersion", dbVersion)
+				: solved.replace("%dbVersion", "NULL");
 		
 		if (solved.contains("%appLog")) {
 			try {
 				File log = getLastLog();
-				
 				if (log == null)
 					return solved;
 
-			    try(FileReader in = new FileReader(log);) {
-			    	
-			    	try(BufferedReader br = new BufferedReader(in);) {
-			    		
+			    try (FileReader in = new FileReader(log); BufferedReader br = new BufferedReader(in)) {
 			    		String line;
 					    while ((line = br.readLine()) != null) {
 					        solved = solved.replace("%appLog", line + "\n%appLog");  // append every line
 					    }
 					    
 					    solved = solved.replace("%appLog", "");  // remove last placeholder
-					    
-					    br.close();
-			    	}
-			    	in.close();
 			    }
-
 			} catch (IOException e) {
 				LOGGER.error("Error in processing file", e);
 				e.printStackTrace();
@@ -200,9 +176,7 @@ public class PropertiesReader {
 	}
 	
 	public static boolean openMailPanel(IDataset... reports) {
-		
 		User user = User.getInstance();
-		
 		String subj = getSupportEmailSubject();
 		String body = getSupportEmailBody();
 		String address = getSupportEmail();
@@ -216,7 +190,6 @@ public class PropertiesReader {
 		body = solveKeywords(body, user, reports);
 		
 		Email mail = new Email(subj, body, ";", address);
-		
 		if (!mail.isSupported())
 			return false;
 		
@@ -237,7 +210,6 @@ public class PropertiesReader {
 	 * @throws IOException 
 	 */
 	private static File getLastLog() throws IOException {
-		
 		Path dir = Paths.get(AppPaths.LOG_FOLDER);  // specify your directory
 
 		  // get the last file comparing lastModified field
@@ -262,27 +234,17 @@ public class PropertiesReader {
 	}
 	
 	/**
-	 * Check if the current data collection is the test one
-	 * @return
-	 */
-	public static boolean isTestDataCollection(String reportYear) {
-		return getDataCollectionCode(reportYear)
-				.equals(getTestDataCollectionCode());
-	}
-	
-	/**
 	 * Get the data collection code using the opened report year
 	 * to identify it
 	 * @return
 	 */
 	public static String getDataCollectionCode() {
-		
 		Report report = GlobalManager.getInstance().getOpenedReport();
 
 		if (report == null) {
-			LOGGER.debug("No report is opened! Returning " 
-					+ getTestDataCollectionCode());
-			return getTestDataCollectionCode();
+			String dcCode = getTestDataCollectionCode();
+			LOGGER.debug("No report is opened! Returning {}", dcCode);
+			return dcCode;
 		}
 		
 		return getDataCollectionCode(report.getYear());
@@ -294,24 +256,18 @@ public class PropertiesReader {
 	 * @return
 	 */
 	public static String getDataCollectionCode(String reportYear) {
-
 		String dcPattern = getValue(APP_DC_PATTERN_PROPERTY);		
-
 		int reportYearInt = Integer.valueOf(reportYear);
 		int startingYear = getDataCollectionStartingYear();
 		
 		String dcCode = null;
-		
-		// if the report year is not an available year
-		// then use the test data collection
+		// if the report year is not an available year then use the test data collection
 		if (reportYearInt < startingYear) {
-			LOGGER.debug("The report year is < than the starting year of the data collection. Using " 
-					+ getTestDataCollectionCode() + " instead.");
+			LOGGER.debug("The report year is < than the starting year of the data collection. Using {} instead.", getTestDataCollectionCode());
 			dcCode = resolveDCPattern(dcPattern, getDcTestCode());
 		}
 		else {
-			// otherwise use the report year to identify the
-			// data collection
+			// otherwise use the report year to identify the data collection
 			dcCode = resolveDCPattern(dcPattern, reportYear);
 		}
 		LOGGER.debug("The data collection code for which the application was created: " + dcCode);
@@ -323,8 +279,7 @@ public class PropertiesReader {
 	 * @return
 	 */
 	public static String getTestDataCollectionCode() {
-		return resolveDCPattern(getValue(APP_DC_PATTERN_PROPERTY), 
-				getDcTestCode());
+		return resolveDCPattern(getValue(APP_DC_PATTERN_PROPERTY), getDcTestCode());
 	}
 	
 	private static String resolveDCPattern(String dataCollectionPattern, Object value) {
@@ -332,12 +287,50 @@ public class PropertiesReader {
 	}
 	
 	/**
-	 * Get the data collection table for which the 
-	 * application was created
-	 * @return
+	 * Get the dataCollection table for which the application was created.
+	 *
+	 * Calls {@link GetDataCollectionsList} to find the {@link IDcfDataCollection#getResourceId()}
+	 * and then {@link GetDataCollectionTables} for the {@link DcfDCTable#getName()}.
+	 *
+	 * If more than one tables are found, match the first name that starts with 'SSD2'.
+	 *
+	 * @return the data collection table name
 	 */
-	public static String getDataCollectionTable() {
-		return getValue(APP_DC_TABLE_PROPERTY);
+	public static String getDataCollectionTable() throws FormulaException {
+		Report report = GlobalManager.getInstance().getOpenedReport();
+		// if no report is open, it is used for proxy tests
+		String reportYear = report != null ? report.getYear() : "2010";
+		String dcCode = getDataCollectionCode(reportYear);
+		User user = User.getInstance();
+
+		try {
+			// find DataCollection
+			IDcfDataCollectionsList<IDcfDataCollection> datasetList = new DcfDataCollectionsList();
+			GetDataCollectionsList<IDcfDataCollection> req = new GetDataCollectionsList<>(false);
+			req.getList(Config.getEnvironment(), user, datasetList);
+			IDcfDataCollection iDataset = datasetList.stream().filter(ds -> ds.getCode().equals(dcCode))
+					.findFirst()
+					.orElseThrow(() -> new Exception("No match found for dc code"));
+
+			// find tableNames
+			DcfDCTablesList tables = new DcfDCTablesList();
+			GetDataCollectionTables<DcfDCTable> dataCollectionTables = new GetDataCollectionTables<>();
+			dataCollectionTables.getTables(Config.getEnvironment(), user, iDataset.getResourceId(), tables);
+
+			// get tableName
+			String tableName = tables.stream()
+					.map(DcfDCTable::getName)
+					.filter(Objects::nonNull)
+					.distinct()
+					.filter(n -> n.startsWith("SSD2"))
+					.max(Comparator.naturalOrder())
+					.orElseThrow(() -> new Exception("No match found for dc code"));
+
+			LOGGER.info("Acquired fact table {} for dcCode {}", tableName, dcCode);
+			return tableName;
+		} catch (Exception e) {
+			throw new FormulaException("Could not retrieve fact table for dcCode: " + dcCode, e);
+		}
 	}
 	
 	/**

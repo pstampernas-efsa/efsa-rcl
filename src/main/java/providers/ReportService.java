@@ -665,7 +665,7 @@ public class ReportService implements IReportService {
 
 		// if no ack return
 		if (ack == null) {
-			Message m = Warnings.create(Messages.get("error.title"), Messages.get("ack.not.available"), SWT.ICON_ERROR);
+			Message m = Warnings.create(Messages.get("error.title"), Messages.get("ack.not.available", PropertiesReader.getSupportEmail()), SWT.ICON_ERROR);
 			m.setCode("ERR803");
 			return m;
 		}

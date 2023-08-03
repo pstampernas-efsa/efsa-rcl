@@ -18,7 +18,6 @@ import xlsx_reader.TableSchema;
 import xlsx_reader.TableSchemaList;
 
 public class Relation {
-
 	private static final Logger LOGGER = LogManager.getLogger(Relation.class);
 
 	// caches for each table of the database, using the
@@ -26,19 +25,13 @@ public class Relation {
 	private static HashMap<String, TableRow> parentValueCache;
 	private static HashMap<String, Integer> lastIds;
 
-	private String parent;
-	private String child;
-	private boolean directRelation;
+	private final String parent;
+	private final String child;
+	private final boolean directRelation;
 
 	public Relation(String parent, String child, boolean directRelation) {
-
-		// Initialise cache if necessary
-		if (parentValueCache == null)
-			parentValueCache = new HashMap<>();
-
-		// Initialise cache if necessary
-		if (lastIds == null)
-			lastIds = new HashMap<>();
+		if (parentValueCache == null)	parentValueCache = new HashMap<>();
+		if (lastIds == null) 			lastIds = new HashMap<>();
 
 		this.parent = parent;
 		this.child = child;
@@ -71,11 +64,8 @@ public class Relation {
 	 * @throws IOException
 	 */
 	public static Collection<TableSchema> getLeavesTables() throws IOException {
-
 		Collection<TableSchema> leaves = new ArrayList<>();
-
 		for (TableSchema schema : TableSchemaList.getAll()) {
-
 			// get children tables
 			Collection<Relation> relations = schema.getChildrenTables();
 
@@ -83,7 +73,6 @@ public class Relation {
 			if (relations.isEmpty())
 				leaves.add(schema);
 		}
-
 		return leaves;
 	}
 
@@ -94,11 +83,8 @@ public class Relation {
 	 * @throws IOException
 	 */
 	public static Collection<TableSchema> getRootTables() throws IOException {
-
 		Collection<TableSchema> roots = new ArrayList<>();
-
 		for (TableSchema schema : TableSchemaList.getAll()) {
-
 			// get children tables
 			Collection<Relation> relations = schema.getParentTables();
 
@@ -106,13 +92,12 @@ public class Relation {
 			if (relations.isEmpty())
 				roots.add(schema);
 		}
-
 		return roots;
 	}
 
 	@Override
 	public String toString() {
-		return "Relation: " + parent + " 1=>N " + child;
+		return String.format("Relation: [%s] 1=>N [%s]", parent, child);
 	}
 
 	/**
@@ -123,13 +108,11 @@ public class Relation {
 	 * @return
 	 */
 	public TableRow getParentValue(int parentId, ITableDaoService daoService) {
-
 		Integer lastUsedId = lastIds.get(parent);
 
 		// if we are not requiring the same parentId
 		// update cache
 		if (lastUsedId == null || parentId != lastUsedId) {
-
 			// get the first (and unique) value related to this
 			// relation from the parent data
 			parentValueCache.put(parent, daoService.getById(getParentSchema(), parentId));
@@ -148,14 +131,11 @@ public class Relation {
 	/**
 	 * Update the cache of the parent if it was changed externally
 	 * 
-	 * @param parentId
+	 * @param parentValue
 	 */
 	public static void updateCache(TableRow parentValue) {
-
 		String tablename = parentValue.getSchema().getSheetName();
-
 		Integer lastUsedId = lastIds.get(tablename);
-
 		if (lastUsedId != null && lastUsedId == parentValue.getDatabaseId()) {
 			parentValueCache.put(tablename, parentValue);
 		}
@@ -169,19 +149,25 @@ public class Relation {
 	 * @param row
 	 */
 	public static void injectParent(TableRow parent, TableRow row) {
-
 		String parentTable = parent.getSchema().getSheetName();
-
 		Relation relation = row.getSchema().getRelationByParentTable(parentTable);
-
 		if (relation == null) {
 			LOGGER.error("No relation found for " + parentTable + " 1=>N " + row.getSchema().getSheetName());
 			return;
 		}
 
 		String prefForeignKey = relation.getForeignKey();
-
 		row.put(prefForeignKey, parent.get(prefForeignKey));
+	}
+
+	public static void injectParents(TableRow child, TableRow... parents) {
+		if (parents == null || parents.length < 1) {
+			return;
+		}
+
+		for (TableRow parent: parents) {
+			injectParent(parent, child);
+		}
 	}
 
 	/**
@@ -192,8 +178,7 @@ public class Relation {
 	 * @param parentTableName
 	 * @throws IOException
 	 */
-	public static void injectGlobalParent(TableRow row, String parentTableName) throws IOException {
-
+	public static void injectGlobalParent(TableRow row, String parentTableName) {
 		// load the global parent
 		TableRow globalParent = Relation.getGlobalParent(parentTableName);
 
@@ -203,9 +188,7 @@ public class Relation {
 			Relation.injectParent(globalParent, row);
 	}
 
-	public static void injectGlobalParent(TableRow row, String parentTableName, ITableDaoService daoService)
-			throws IOException {
-
+	public static void injectGlobalParent(TableRow row, String parentTableName, ITableDaoService daoService) {
 		// load the global parent
 		TableRow globalParent = Relation.getGlobalParent(parentTableName, daoService);
 
@@ -220,18 +203,16 @@ public class Relation {
 	 * one row that contains values that are used across the whole application, as
 	 * preferences/settings...)
 	 * 
-	 * @param sheetName
+	 * @param tableName
 	 * @return
 	 * @throws IOException
 	 */
-	public static TableRow getGlobalParent(String tableName) throws IOException {
+	public static TableRow getGlobalParent(String tableName) {
 		return getGlobalParent(tableName, new TableDaoService(new TableDao())); // TODO to be removed
 	}
 
-	public static TableRow getGlobalParent(String tableName, ITableDaoService daoService) throws IOException {
-
+	public static TableRow getGlobalParent(String tableName, ITableDaoService daoService) {
 		TableSchema schema = TableSchemaList.getByName(tableName);
-
 		Collection<TableRow> opts = daoService.getAll(schema);
 
 		if (opts.isEmpty())
@@ -246,24 +227,12 @@ public class Relation {
 	 * @return
 	 */
 	public TableSchema getParentSchema() {
-
-		try {
-
-			SchemaReader reader = new SchemaReader(AppPaths.TABLES_SCHEMA_FILE);
-
+		try (SchemaReader reader = new SchemaReader(AppPaths.TABLES_SCHEMA_FILE)) {
 			reader.read(getParent());
-
-			TableSchema schema = reader.getSchema();
-
-			reader.close();
-
-			return schema;
-
+			return reader.getSchema();
 		} catch (IOException e) {
-			LOGGER.error("Cannot get parent schema for " + getParent(), e);
-			e.printStackTrace();
+			LOGGER.error("Cannot get parent schema for {} {}", getParent(), e);
 		}
-
 		return null;
 	}
 
@@ -273,24 +242,12 @@ public class Relation {
 	 * @return
 	 */
 	public TableSchema getChildSchema() {
-
-		try {
-
-			SchemaReader reader = new SchemaReader(AppPaths.TABLES_SCHEMA_FILE);
-
+		try (SchemaReader reader = new SchemaReader(AppPaths.TABLES_SCHEMA_FILE)) {
 			reader.read(getChild());
-
-			TableSchema schema = reader.getSchema();
-
-			reader.close();
-
-			return schema;
-
+			return reader.getSchema();
 		} catch (IOException e) {
-			LOGGER.error("Cannot get child schema for" + getChild(), e);
-			e.printStackTrace();
+			LOGGER.error("Cannot get child schema for {} {}", getChild(), e);
 		}
-
 		return null;
 	}
 }
