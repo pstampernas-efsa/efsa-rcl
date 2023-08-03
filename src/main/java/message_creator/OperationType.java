@@ -10,16 +10,20 @@ import app_config.AppPaths;
  *
  */
 public enum OperationType {
+	INSERT("Insert", "Insert"),
+	REPLACE("Replace", "Replace"),
+	REJECT("Reject", "Reject"),
+	SUBMIT("Submit", "Submit"),
+	TEST("Test", "Insert"),
+	NOT_SUPPORTED("NotSupported", "NotSupported");
 
-	INSERT("Insert", "Insert"), REPLACE("Replace", "Replace"), REJECT("Reject", "Reject"), SUBMIT("Submit", "Submit"),
-	TEST("Test", "Insert"), NOT_SUPPORTED("NotSupported", "NotSupported");
 	// accepted Dwh status for beta testers
 	// ACCEPTED_DWH_BETA("AcceptDwhBeta", "Accept dwh");
 
-	private String internalOpType;
-	private String opTypeName;
+	private final String internalOpType;
+	private final String opTypeName;
 
-	private OperationType(String internalOpType, String opTypeName) {
+	OperationType(String internalOpType, String opTypeName) {
 		this.internalOpType = internalOpType;
 		this.opTypeName = opTypeName;
 	}
@@ -59,7 +63,6 @@ public enum OperationType {
 	 * @return
 	 */
 	public static OperationType fromString(String text) {
-
 		for (OperationType b : OperationType.values()) {
 			if (b.internalOpType.equalsIgnoreCase(text)) {
 				return b;

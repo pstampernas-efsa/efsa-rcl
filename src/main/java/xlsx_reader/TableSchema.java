@@ -1,10 +1,7 @@
 package xlsx_reader;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,13 +11,9 @@ import table_relations.RelationList;
 import table_skeleton.TableColumn;
 
 public class TableSchema extends ArrayList<TableColumn> {
-	
+	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = LogManager.getLogger(TableSchema.class);
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private String sheetName;
 	private String tableIdField;
 	private Collection<Relation> relations;
@@ -72,7 +65,6 @@ public class TableSchema extends ArrayList<TableColumn> {
 	 * @throws IOException
 	 */
 	public TableSchema getNonCompositeColumns() {
-		
 		TableSchema out = new TableSchema();
 		
 		// copy the schema information
@@ -94,7 +86,6 @@ public class TableSchema extends ArrayList<TableColumn> {
 	 * @throws IOException
 	 */
 	public Collection<Relation> getParentTables() throws IOException {
-		
 		Collection<Relation> out = new ArrayList<>();
 
 		for (Relation r : RelationList.getAll()) {
@@ -110,7 +101,7 @@ public class TableSchema extends ArrayList<TableColumn> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Relation> getChildrenTables() throws IOException {
+	public Collection<Relation> getChildrenTables() {
 		
 		Collection<Relation> out = new ArrayList<>();
 
@@ -127,18 +118,14 @@ public class TableSchema extends ArrayList<TableColumn> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Relation> getDirectChildren() throws IOException {
-		
+	public List<Relation> getDirectChildren() {
 		Collection<Relation> out = new ArrayList<>();
-		
 		Collection<Relation> rs = getChildrenTables();
-
 		for (Relation r : rs) {
 			if (r.isDirectRelation())
 				out.add(r);
 		}
-		
-		return out;
+		return new ArrayList<>(out);
 	}
 	
 	private void setRelations(Collection<Relation> relations) {
@@ -170,9 +157,10 @@ public class TableSchema extends ArrayList<TableColumn> {
 	}
 	
 	/**
-	 * Get a column by its key id
-	 * @param key
-	 * @return
+	 * Get a column by its id
+	 *
+	 * @param id the column id
+	 * @return the column or null
 	 */
 	public TableColumn getById(String id) {
 
@@ -234,7 +222,6 @@ public class TableSchema extends ArrayList<TableColumn> {
 	
 	@Override
 	public boolean equals(Object arg0) {
-		
 		if (!(arg0 instanceof TableSchema))
 			return super.equals(arg0);
 		

@@ -49,12 +49,12 @@ public class TableRowComparator implements Comparator<TableRow> {
 			int intValue2;
 			
 			// set default values if no value is retrieved
-			if (value1 == null)
+			if (value1 == null || value1.length() == 0)
 				intValue1 = ascendant ? Integer.MAX_VALUE : Integer.MIN_VALUE;
 			else
 				intValue1 = Integer.valueOf(value1);
 			
-			if (value2 == null)
+			if (value2 == null || value2.length() == 0)
 				intValue2 = ascendant ? Integer.MAX_VALUE : Integer.MIN_VALUE;
 			else
 				intValue2 = Integer.valueOf(value2);

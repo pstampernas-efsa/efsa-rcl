@@ -2,8 +2,6 @@ package report;
 
 import java.util.Collection;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -23,6 +21,7 @@ import progress_bar.FormProgressBar;
 import progress_bar.IndeterminateProgressDialog;
 import progress_bar.ProgressListener;
 import providers.IReportService;
+import response_parser.IDcfList;
 import soap.DetailedSOAPException;
 import soap.GetDataCollectionsList;
 import user.User;
@@ -34,12 +33,10 @@ import user.User;
  *
  */
 public abstract class ReportDownloaderDialog {
+	private final Shell shell;
+	private final IReportService reportService;
 	
-	static final Logger LOGGER = LogManager.getLogger(ReportDownloaderDialog.class);
-
-	private Shell shell;
 	private DatasetList allVersions;
-	private IReportService reportService;
 	
 	public ReportDownloaderDialog(Shell shell, IReportService reportService) {
 		this.shell = shell;
@@ -56,17 +53,13 @@ public abstract class ReportDownloaderDialog {
 	 * @throws DetailedSOAPException
 	 */
 	private IDcfDataCollectionsList<IDcfDataCollection> getAvailableDcList() throws DetailedSOAPException {
-		
 		IDcfDataCollectionsList<IDcfDataCollection> output = new DcfDataCollectionsList();
 		GetDataCollectionsList<IDcfDataCollection> req = new GetDataCollectionsList<>();
-		
-		req.getList(Config.getEnvironment(), User.getInstance(), output);
-		
+		IDcfDataCollectionsList<IDcfDataCollection> filteredOutput = new DcfDataCollectionsList();
 		Collection<String> validDcs = GetAvailableDataCollections.getCodes();
 		
-		IDcfDataCollectionsList<IDcfDataCollection> filteredOutput = new DcfDataCollectionsList();
-		
-		for(IDcfDataCollection dc : output) {
+		IDcfList<IDcfDataCollection> list = req.getList(Config.getEnvironment(), User.getInstance(), output);
+		for(IDcfDataCollection dc : list) {
 			// remove not valid data collection
 			if (validDcs.contains(dc.getCode())) {
 				filteredOutput.add(dc);
@@ -78,11 +71,9 @@ public abstract class ReportDownloaderDialog {
 	
 	/**
 	 * Download a dataset from the dcf
-	 * @param validSenderId
 	 * @throws DetailedSOAPException 
 	 */
 	public void download() throws DetailedSOAPException {
-
 		shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 		
 		// select the data collection
@@ -93,32 +84,23 @@ public abstract class ReportDownloaderDialog {
 			shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
 			throw e;
 		}
-		
 		shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
 
 		// if no data collection was retrieved
 		if (list.isEmpty()) {
-			
-			Warnings.createFatal(Messages.get("dc.no.element.found", 
-					PropertiesReader.getSupportEmail())).open(shell);
-			
+			Warnings.createFatal(Messages.get("dc.no.element.found", PropertiesReader.getSupportEmail())).open(shell);
 			return;
 		}
 		
 		IDataCollectionsDialog dcDialog = getDataCollectionsDialog(shell, list);
-		
 		IDcfDataCollection selectedDc = dcDialog.open();
-		
 		if (selectedDc == null)
 			return;
 		
 		// get datasets list
 		getDatasets(selectedDc.getCode(), new ThreadFinishedListener() {
-
 			public void finished(Runnable runnable) {
-				
 				GetDatasetListThread getDatasetListThread = (GetDatasetListThread) runnable;
-				
 				DatasetList list = getDatasetListThread.getDatasetsList();
 				
 				// open the list of datasets
@@ -128,25 +110,20 @@ public abstract class ReportDownloaderDialog {
 				
 				// get the chosen dataset
 				Dataset selectedDataset = dialog.getSelectedDataset();
-				
 				if (selectedDataset == null)  // user pressed cancel
 					return;
 
 				// get all the versions of the dataset that are present in the DCF
 				allVersions = dialog.getSelectedDatasetVersions();
-				
 				if (allVersions == null)
 					return;
 				
 				// extract the senderId from the composed field (senderId.version)
 				String senderId = selectedDataset.getDecomposedSenderId();
-				
 				// if the report already exists locally, warn that it will be overwritten
 				if (reportService.isLocallyPresent(senderId)) {
-					
 					// ask confirmation to the user
 					boolean confirm = askConfirmation();
-					
 					if (!confirm)
 						return;
 				}
@@ -155,26 +132,17 @@ public abstract class ReportDownloaderDialog {
 				ReportImporter downloader = getImporter(allVersions);
 				ReportImporterThread thread = new ReportImporterThread(downloader);
 				
-				FormProgressBar progressBarDialog = new FormProgressBar(shell, 
-						Messages.get("download.progress.title"));
+				FormProgressBar progressBarDialog = new FormProgressBar(shell, Messages.get("download.progress.title"));
 				progressBarDialog.open();
 				
 				thread.setProgressListener(new ProgressListener() {
-
 					@Override
 					public void progressCompleted() {
-						
 						// show warning
-						shell.getDisplay().syncExec(new Runnable() {
-
-							@Override
-							public void run() {
-								
+						shell.getDisplay().syncExec(() -> {
 								progressBarDialog.fillToMax();
 								progressBarDialog.close();
-								
 								end();
-							}
 						});
 					}
 
@@ -188,18 +156,9 @@ public abstract class ReportDownloaderDialog {
 
 					@Override
 					public void progressStopped(Exception e) {
-
-						// show warning
-						shell.getDisplay().syncExec(new Runnable() {
-
-							@Override
-							public void run() {
-								
+						shell.getDisplay().syncExec(() -> {
 								progressBarDialog.close();
-								
-								// manage the exception
 								manageException(e);
-							}
 						});
 					}
 				});
@@ -209,18 +168,13 @@ public abstract class ReportDownloaderDialog {
 
 			@Override
 			public void terminated(Runnable thread, Exception e) {
-				
-				shell.getDisplay().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
+				shell.getDisplay().asyncExec(() -> {
 						if (e instanceof DetailedSOAPException) {
 							Warnings.showSOAPWarning(shell, (DetailedSOAPException) e);
 						}
 						else {
 							Warnings.warnUser(shell, Messages.get("error.title"), Messages.get("download.dataset.error"));
 						}
-					}
 				});
 			}
 		});
@@ -232,35 +186,25 @@ public abstract class ReportDownloaderDialog {
 	 * @param listener
 	 */
 	private void getDatasets(String dcCode, ThreadFinishedListener listener) {
-		
 		IndeterminateProgressDialog progressBar = new IndeterminateProgressDialog(shell, SWT.APPLICATION_MODAL, 
 				Messages.get("get.dataset.list.progress.bar.label"));
 		progressBar.open();
 		
 		GetDatasetListThread thread = new GetDatasetListThread(User.getInstance(), dcCode);
 		thread.setListener(new ThreadFinishedListener() {
-			
 			@Override
 			public void finished(Runnable thread) {
-				shell.getDisplay().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
+				shell.getDisplay().asyncExec(() -> {
 						progressBar.close();
 						listener.finished(thread);
-					}
 				});
 			}
 
 			@Override
 			public void terminated(Runnable thread, Exception e) {
-				shell.getDisplay().asyncExec(new Runnable() {
-					
-					@Override
-					public void run() {
+				shell.getDisplay().asyncExec(() -> {
 						progressBar.close();
 						listener.terminated(thread, e);
-					}
 				});
 			}
 		});

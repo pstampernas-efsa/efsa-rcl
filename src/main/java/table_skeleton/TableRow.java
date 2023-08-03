@@ -158,6 +158,7 @@ public class TableRow implements Checkable {
 		// get parent using the id contained in the row
 		TableRow parent = dao.getById(parentSchema, this.getNumLabel(parentSchema.getTableIdField()));
 
+		LOGGER.info("Parent of this table row: ", parent);
 		return parent;
 	}
 
@@ -183,6 +184,7 @@ public class TableRow implements Checkable {
 		Collection<TableRow> children = dao.getByParentId(childSchema, parentTable, this.getDatabaseId(),
 				solveFormulas);
 
+		LOGGER.info("rows defined in the child table that are related to this parent row: ", children);
 		return children;
 	}
 
@@ -230,6 +232,9 @@ public class TableRow implements Checkable {
 
 		int numValue = Integer.MIN_VALUE;
 		try {
+			if (value.isEmpty() || value.length() == 0) {
+				value = "0";
+			}
 			numValue = Integer.valueOf(value);
 		} catch (NumberFormatException e) {
 			LOGGER.error("Cannot get number for value:" + value, e);
